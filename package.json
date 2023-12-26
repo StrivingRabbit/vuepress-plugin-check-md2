@@ -10,7 +10,7 @@
     "publish:patch": "npm version patch && npm publish",
     "publish:minor": "npm version minor && npm publish",
     "publish:major": "npm version major  && npm publish",
-    "postpublish": "cnpm sync vuepress-theme-uni-app-test"
+    "postpublish": "cnpm sync vuepress-plugin-check-md2"
   },
   "author": "LXH",
   "license": "ISC",
