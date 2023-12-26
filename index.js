@@ -60,6 +60,8 @@ const presetConfig = {
  * @property {String} [CheckOption.preset]
  * @property {String | Array<String>} [CheckOption.pattern]
  * @property {String | Array<String>} [CheckOption.ignore]
+ * @property {Function} [CheckOption.filter]
+ * @property {Boolean} [CheckOption.force]
  */
 
 /**
@@ -382,20 +384,25 @@ async function checkAndThrow(options) {
   const result = await check(options);
 
   const errorLevels = [];
-  Object.keys(result).forEach(k => {
-    /** @type {ReportResult} */
-    const item = result[k];
-    if (!item.list.length) {
-      return;
-    }
-    if (!options.filter || (typeof options.filter === 'function' && options.filter(item))) {
+  if (options.force !== true) {
+    Object.keys(result).forEach(k => {
+      /** @type {ReportResult} */
+      const item = result[k];
+      if (!item.list.length) {
+        return;
+      }
+
+      if (!options.filter || (typeof options.filter === 'function')) {
+        item.list = item.list.filter(options.filter);
+      }
+
       const level = LOG_LEVELS[item.type];
       errorLevels.push(level);
       if (level > LOG_LEVELS.none) {
         console[item.type](convertErrMsg(item));
       }
-    }
-  });
+    });
+  }
 
   // tips for fix
   if (errorLevels.length) {
@@ -430,6 +437,7 @@ module.exports = (opts = {}) => {
       cli
         .command('check-md2 [targetDir]', 'Checks dead links of markdown.')
         .option('--fix', 'fix dead links like a expert.')
+        .option('--force', 'force PASS.')
         .option('--pattern [pattern]', 'glob pattern of resolved markdowns.')
         .option('--ignore [pattern]', 'glob pattern to specify paths from being checked.')
         .option('--exit-level [level]', 'Process exit level, default to `error`.')
@@ -447,7 +455,8 @@ module.exports = (opts = {}) => {
             slugify:  compose(deeplyParseHeaders, (ctx.markdown && ctx.markdown.slugify) || slugify),
             cwd,
             fix: finalOptions.fix || false,
-            filter: finalOptions.filter || null
+            filter: finalOptions.filter || null,
+            force: finalOptions.force || false,
           })
         })
     }
