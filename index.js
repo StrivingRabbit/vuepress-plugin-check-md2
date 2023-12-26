@@ -426,9 +426,9 @@ function convertErrMsg(obj) {
 
 module.exports = (opts = {}) => {
   return {
-    extendCli(cli) {
+    extendCli(cli, ctx) {
       cli
-        .command('check-md [targetDir]', 'Checks dead links of markdown.')
+        .command('check-md2 [targetDir]', 'Checks dead links of markdown.')
         .option('--fix', 'fix dead links like a expert.')
         .option('--pattern [pattern]', 'glob pattern of resolved markdowns.')
         .option('--ignore [pattern]', 'glob pattern to specify paths from being checked.')
@@ -444,9 +444,10 @@ module.exports = (opts = {}) => {
             exitLevel: 'error',
             root,
             defaultIndex: ['README.md', 'index.md'],
-            slugify: compose(deeplyParseHeaders, slugify),
+            slugify:  compose(deeplyParseHeaders, (ctx.markdown && ctx.markdown.slugify) || slugify),
             cwd,
-            fix: finalOptions.fix || false
+            fix: finalOptions.fix || false,
+            filter: finalOptions.filter || null
           })
         })
     }
