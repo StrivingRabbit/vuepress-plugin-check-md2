@@ -438,8 +438,13 @@ module.exports = (opts = {}) => {
         .command('check-md2 [targetDir]', 'Checks dead links of markdown.')
         .option('--fix', 'fix dead links like a expert.')
         .option('--force', 'force PASS.')
-        .option('--pattern [pattern]', 'glob pattern of resolved markdowns.')
-        .option('--ignore [pattern]', 'glob pattern to specify paths from being checked.')
+        .option('--pattern [...pattern]', 'glob pattern of resolved markdowns.', {
+          type: [String],
+          default: ['**/*.md']
+        })
+        .option('--ignore [pattern]', 'glob pattern to specify paths from being checked.', {
+          default: ['**/node_modules']
+        })
         .option('--exit-level [level]', 'Process exit level, default to `error`.')
         .action((dir = '.', cliOptions = {}) => {
           const cwd = dir
@@ -451,7 +456,7 @@ module.exports = (opts = {}) => {
             ignore: finalOptions.ignore || ['**/node_modules'],
             exitLevel: 'error',
             root,
-            defaultIndex: ['README.md', 'index.md'],
+            defaultIndex: ['readme.md', 'README.md', 'index.md'],
             slugify:  compose(deeplyParseHeaders, (ctx.markdown && ctx.markdown.slugify) || slugify),
             cwd,
             fix: finalOptions.fix || false,
