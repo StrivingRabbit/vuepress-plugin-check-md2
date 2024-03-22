@@ -388,14 +388,14 @@ async function checkAndThrow(options) {
     Object.keys(result).forEach(k => {
       /** @type {ReportResult} */
       const item = result[k];
-      if (!item.list.length) {
-        return;
-      }
 
       if (!options.filter || (typeof options.filter === 'function')) {
         item.list = item.list.filter(options.filter);
       }
 
+      if (!item.list.length) {
+        return;
+      }
       const level = LOG_LEVELS[item.type];
       errorLevels.push(level);
       if (level > LOG_LEVELS.none) {
